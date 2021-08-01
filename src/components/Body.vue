@@ -2,15 +2,15 @@
   <div class="body_main">
     <!-- GIF TAB DISPLAY DIV -->
     <div class="containerTab" v-if="gifTab && showTab">
-      <div class="gifTab" v-bind="showTab" v-for="gif in gifTab" :key="gif.id">
+      <div class="gifTab"  v-for="gif in gifTab" :key="gif.id">
         <img class="imgGif" :src="gif" alt="gif_king" />
       </div>
     </div>
-    <div v-if="victory" >
+    <div v-if="victory">
       <img class="imageVictory" :src="gifVictory" alt="gif_victory" />
     </div>
     <div class="div_button" v-if="buttonShow">
-      <button class="boutton_new_game" @click="newGame()">
+      <button class="boutton_new_game" @click="newGame(), countDownTimer()">
         nouvelle partie
       </button>
     </div>
@@ -27,18 +27,28 @@
         <button
           id="button_click"
           @click="RandomNumbGenerator(), NumberMatch(), Victory()"
+          @click.once="countDownTimer()"
         >
           click
         </button>
         <p class="random_number">{{ this.randomNumber }}</p>
       </div>
-      <div class="chrono"></div>
+      <div class="chrono">
+        <p class="chronoTime">
+          {{ this.countDown }}
+        </p>
+      </div>
     </div>
     <!-- SCORES -->
-    <div class="body_scores">
-      <p class="title_scores">Scores</p>
-      <div class="tab_scores"></div>
+    <div class="container_tab_score" v-if="scoresTab">
+      <p class="score_title">Scores:</p>
+      <div class="body_scores" v-for="score in scoresTab" :key="score.id">
+        <p class="title_scores">{{ score }}</p>
+        <div class="tab_scores"></div>
+      </div>
     </div>
+
+    <!-- TOTAL -->
     <div class="body_total">
       <p class="total title">Total</p>
       <div class="total_results"></div>
@@ -64,12 +74,10 @@ export default {
       gifTab: [],
 
       /* CHRONOMETRE */
-      millisecondes:0,
-      secondes:0,
-      minutes:0,
+      countDown: 60,
 
       /* SCORE */
-      scoresTab: [],
+      scoresTab:[],
       total: 0,
     };
   },
@@ -91,6 +99,16 @@ export default {
         return tabGif;
       }
     },
+    /* CHRONOMETRE */
+    countDownTimer() {
+      if (this.countDown > 0 && this.victory == false) {
+        setTimeout(() => {
+          this.countDown -= 1;
+          this.countDownTimer();
+        }, 1000);
+      }
+    },
+
     Victory() {
       if (this.gifTab.length == 4) {
         this.showTab = false;
@@ -99,15 +117,17 @@ export default {
         this.luckyNumber = "";
         this.randomNumber = "";
         this.buttonShow = true;
+        var tabScore = this.scoresTab.push(this.countDown);
+        event.preventDefault();
+        return tabScore;
       }
     },
     newGame() {
       this.showTab = true;
       this.victory = false;
       this.buttonShow = false;
+      this.countDown = 60;
     },
-
-    
   },
 };
 </script>
@@ -121,7 +141,7 @@ export default {
   flex-direction: row;
   justify-content: space-around;
 }
-.gifTab{
+.gifTab {
   width: 20%;
 }
 
@@ -136,7 +156,7 @@ export default {
 }
 
 /* IMAGE VICTORY */
-.imageVictory{
-  width:90%;
+.imageVictory {
+  width: 90%;
 }
 </style>
